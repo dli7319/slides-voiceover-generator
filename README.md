@@ -12,9 +12,9 @@ The scripts are designed to be run on a Linux machine with docker, an nvidia gpu
    - `script.txt` should contain the script for the voiceover, one line per slide.
    - `slides.pdf` should contain the slides.
 3. Run `./extract_slides.sh` to extract the slides into individual images.
-4. Run `./initialize_durations` to initialize the durations of each slide.
+4. Run `./generate_voiceover.sh` to generate the voiceover.
+5. Run `./initialize_durations` to initialize the durations of each slide.
    - You can tune `durations.txt` to your liking, e.g. for overlay videos.
-5. Run `./generate_voiceover.sh` to generate the voiceover.
 6. Run `./stitch_video.sh` to combine the slides and voiceover into a video.<br>
    Or use your own video editor software to combine the voiceover into a video.
 
