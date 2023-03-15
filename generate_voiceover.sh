@@ -12,6 +12,8 @@ SPEECH_LENGTH="1.2"
 script_file="script.txt"
 script=$(cat "${script_file}")
 
+user_id=$(id -u)
+
 function run_setup {
     if [ ! -d "${CACHE_DIR}" ]; then
         # Download the model
@@ -22,8 +24,13 @@ function run_setup {
             --text "Test" \
             --model_name $MODEL_NAME \
             --speaker_idx $SPEAKER \
-            --out_path "/root/tts-output/a.wav" \
+            --out_path "/tmp/a.wav" \
             --use_cuda true
+        docker run --rm --gpus all \
+            -v "${CACHE_DIR}":/root/.local \
+            --entrypoint /bin/bash \
+            $DOCKER_IMAGE \
+            -c "chown $user_id:$user_id -R /root/.local/"
     fi
     docker run --rm --gpus all \
         -v "${CACHE_DIR}":/root/.local \
@@ -48,7 +55,7 @@ function generate_voiceover_line {
         -v "${DIR}/voice_segments:/root/tts-output" \
         --entrypoint /bin/bash \
         $DOCKER_IMAGE \
-        -c "chown 1000 /root/tts-output/$line_number.wav"
+        -c "chown $user_id:$user_id -R /root/tts-output/"
 }
 
 run_setup
