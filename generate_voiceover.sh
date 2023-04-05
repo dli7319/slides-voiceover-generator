@@ -5,7 +5,7 @@ cd "${DIR}" || exit 1
 
 DOCKER_IMAGE=ghcr.io/coqui-ai/tts:main
 MODEL_NAME=tts_models/en/vctk/vits
-SPEAKER=p246
+SPEAKER=p273
 CACHE_DIR="${DIR}/cache"
 SPEECH_LENGTH="1.2"
 
