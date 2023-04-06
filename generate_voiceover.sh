@@ -4,6 +4,7 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 cd "${DIR}" || exit 1
 
 DOCKER_IMAGE=ghcr.io/coqui-ai/tts:main
+DOCKER_IMAGE_CPU=ghcr.io/coqui-ai/tts-cpu:main
 MODEL_NAME=tts_models/en/vctk/vits
 SPEAKER=p273
 CACHE_DIR="${DIR}/cache"
@@ -13,26 +14,34 @@ script_file="script.txt"
 script=$(cat "${script_file}")
 
 user_id=$(id -u)
+gpu_support=$(command -v nvidia-smi >/dev/null && echo true || echo false)
+
+docker_gpu_flag=()
+if [ "$gpu_support" = true ]; then
+    docker_gpu_flag=("--gpus" "all")
+else
+    echo "No GPU support detected, using CPU-only image"
+    DOCKER_IMAGE=$DOCKER_IMAGE_CPU
+fi
 
 function run_setup {
     if [ ! -d "${CACHE_DIR}" ]; then
         # Download the model
         mkdir -p "${CACHE_DIR}"
-        docker run --rm --gpus all \
+        docker run --rm ${docker_gpu_flag[@]} \
             -v "${CACHE_DIR}":/root/.local \
             $DOCKER_IMAGE \
             --text "Test" \
             --model_name $MODEL_NAME \
             --speaker_idx $SPEAKER \
-            --out_path "/tmp/a.wav" \
-            --use_cuda true
-        docker run --rm --gpus all \
+            --out_path "/tmp/a.wav"
+        docker run --rm ${docker_gpu_flag[@]} \
             -v "${CACHE_DIR}":/root/.local \
             --entrypoint /bin/bash \
             $DOCKER_IMAGE \
             -c "chown $user_id:$user_id -R /root/.local/"
     fi
-    docker run --rm --gpus all \
+    docker run --rm ${docker_gpu_flag[@]} \
         -v "${CACHE_DIR}":/root/.local \
         --entrypoint /bin/bash \
         $DOCKER_IMAGE \
@@ -42,7 +51,11 @@ function run_setup {
 function generate_voiceover_line {
     local line_number="$1"
     local line="$2"
-    docker run --rm --gpus all \
+    use_cuda=()
+    if [ "$gpu_support" = true ]; then
+      use_cuda=("--use_cuda" "true")
+    fi
+    docker run --rm ${docker_gpu_flag[@]} \
         -v "${DIR}/voice_segments:/root/tts-output" \
         -v "${CACHE_DIR}":/root/.local \
         $DOCKER_IMAGE \
@@ -50,8 +63,8 @@ function generate_voiceover_line {
         --model_name $MODEL_NAME \
         --speaker_idx $SPEAKER \
         --out_path "/root/tts-output/$line_number.wav" \
-        --use_cuda true
-    docker run --rm --gpus all \
+        ${use_cuda[@]}
+    docker run --rm ${docker_gpu_flag[@]} \
         -v "${DIR}/voice_segments:/root/tts-output" \
         --entrypoint /bin/bash \
         $DOCKER_IMAGE \
