@@ -51,6 +51,7 @@ function run_setup {
 function generate_voiceover_line {
     local line_number="$1"
     local line="$2"
+    line_number_padded=$(printf "%03d" "$line_number")
     use_cuda=()
     if [ "$gpu_support" = true ]; then
       use_cuda=("--use_cuda" "true")
@@ -62,7 +63,7 @@ function generate_voiceover_line {
         --text "$line" \
         --model_name $MODEL_NAME \
         --speaker_idx $SPEAKER \
-        --out_path "/root/tts-output/$line_number.wav" \
+        --out_path "/root/tts-output/$line_number_padded.wav" \
         "${use_cuda[@]}"
     docker run --rm "${docker_gpu_flag[@]}" \
         -v "${DIR}/voice_segments:/root/tts-output" \
