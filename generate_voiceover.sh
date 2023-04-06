@@ -7,7 +7,7 @@ DOCKER_IMAGE=ghcr.io/coqui-ai/tts:main
 MODEL_NAME=tts_models/en/vctk/vits
 SPEAKER=p273
 CACHE_DIR="${DIR}/cache"
-SPEECH_LENGTH="1.2"
+SPEECH_LENGTH="1.0"
 
 script_file="script.txt"
 script=$(cat "${script_file}")
