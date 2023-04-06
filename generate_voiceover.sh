@@ -56,6 +56,7 @@ function generate_voiceover_line {
     if [ "$gpu_support" = true ]; then
       use_cuda=("--use_cuda" "true")
     fi
+    mkdir -p "${DIR}/voice_segments"
     docker run --rm "${docker_gpu_flag[@]}" \
         -v "${DIR}/voice_segments:/root/tts-output" \
         -v "${CACHE_DIR}":/root/.local \
