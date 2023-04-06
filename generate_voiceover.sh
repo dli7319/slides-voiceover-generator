@@ -28,20 +28,20 @@ function run_setup {
     if [ ! -d "${CACHE_DIR}" ]; then
         # Download the model
         mkdir -p "${CACHE_DIR}"
-        docker run --rm ${docker_gpu_flag[@]} \
+        docker run --rm "${docker_gpu_flag[@]}" \
             -v "${CACHE_DIR}":/root/.local \
             $DOCKER_IMAGE \
             --text "Test" \
             --model_name $MODEL_NAME \
             --speaker_idx $SPEAKER \
             --out_path "/tmp/a.wav"
-        docker run --rm ${docker_gpu_flag[@]} \
+        docker run --rm "${docker_gpu_flag[@]}" \
             -v "${CACHE_DIR}":/root/.local \
             --entrypoint /bin/bash \
             $DOCKER_IMAGE \
             -c "chown $user_id:$user_id -R /root/.local/"
     fi
-    docker run --rm ${docker_gpu_flag[@]} \
+    docker run --rm "${docker_gpu_flag[@]}" \
         -v "${CACHE_DIR}":/root/.local \
         --entrypoint /bin/bash \
         $DOCKER_IMAGE \
@@ -55,7 +55,7 @@ function generate_voiceover_line {
     if [ "$gpu_support" = true ]; then
       use_cuda=("--use_cuda" "true")
     fi
-    docker run --rm ${docker_gpu_flag[@]} \
+    docker run --rm "${docker_gpu_flag[@]}" \
         -v "${DIR}/voice_segments:/root/tts-output" \
         -v "${CACHE_DIR}":/root/.local \
         $DOCKER_IMAGE \
@@ -63,8 +63,8 @@ function generate_voiceover_line {
         --model_name $MODEL_NAME \
         --speaker_idx $SPEAKER \
         --out_path "/root/tts-output/$line_number.wav" \
-        ${use_cuda[@]}
-    docker run --rm ${docker_gpu_flag[@]} \
+        "${use_cuda[@]}"
+    docker run --rm "${docker_gpu_flag[@]}" \
         -v "${DIR}/voice_segments:/root/tts-output" \
         --entrypoint /bin/bash \
         $DOCKER_IMAGE \
