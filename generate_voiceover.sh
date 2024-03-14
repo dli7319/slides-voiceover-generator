@@ -75,7 +75,7 @@ function generate_voiceover_line {
 
 run_setup
 # Loop over each line in the script, outputting the line number and the line itself.
-line_number=0
+line_number=1
 while IFS= read -r line; do
     echo "Line ${line_number}: ${line}"
     generate_voiceover_line "$line_number" "$line"
